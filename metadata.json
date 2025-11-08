@@ -1,0 +1,5 @@
+{
+  "name": "QR Code Editor",
+  "description": "An application to find, edit, and replace QR codes within PDF documents and image files directly in your browser.",
+  "requestFramePermissions": []
+}
