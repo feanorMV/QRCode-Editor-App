@@ -131,14 +131,15 @@ async function modifyPdf(
     const { topLeftCorner: topLeft, topRightCorner: topRight, bottomLeftCorner: bottomLeft } = qrToReplace.location;
     
     // Calculate position and size in PDF points.
-    // We assume the rendered canvas from pdf.js has the same aspect ratio as the PDF page.
+    // We need to convert from canvas pixel coordinates (scaled by RENDER_SCALE, y-down from top-left)
+    // to PDF points (unscaled, y-up from bottom-left).
     const canvasWidth = Math.sqrt(Math.pow(topRight.x - topLeft.x, 2) + Math.pow(topRight.y - topLeft.y, 2));
     const canvasHeight = Math.sqrt(Math.pow(bottomLeft.x - topLeft.x, 2) + Math.pow(bottomLeft.y - topLeft.y, 2));
     
-    const qrWidthInPoints = (canvasWidth / (RENDER_SCALE * page.getViewport({ scale: 1 }).width)) * pageWidth;
-    const qrHeightInPoints = (canvasHeight / (RENDER_SCALE * page.getViewport({ scale: 1 }).height)) * pageHeight;
-    const qrXInPoints = (topLeft.x / (RENDER_SCALE * page.getViewport({ scale: 1 }).width)) * pageWidth;
-    const qrYInPoints = pageHeight - ((topLeft.y / (RENDER_SCALE * page.getViewport({ scale: 1 }).height)) * pageHeight) - qrHeightInPoints;
+    const qrWidthInPoints = canvasWidth / RENDER_SCALE;
+    const qrHeightInPoints = canvasHeight / RENDER_SCALE;
+    const qrXInPoints = topLeft.x / RENDER_SCALE;
+    const qrYInPoints = pageHeight - (topLeft.y / RENDER_SCALE) - qrHeightInPoints;
     
     // Cover old QR code with a white rectangle
     page.drawRectangle({
